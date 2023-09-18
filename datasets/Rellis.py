@@ -7,7 +7,7 @@
 #
 # ----------------------------------------------------------------------------------------------------------------------
 #
-#      Class handling SemanticKitti dataset.
+#      Class handling Rellis dataset.
 #      Implements a Dataset, a Sampler, and a collate_fn
 #
 # ----------------------------------------------------------------------------------------------------------------------
@@ -51,11 +51,11 @@ from utils.config import bcolors
 #       \******************************/
 
 
-class SemanticKittiDataset(PointCloudDataset):
-    """Class to handle SemanticKitti dataset."""
+class RellisDataset(PointCloudDataset):
+    """Class to handle Rellis dataset."""
 
     def __init__(self, config, set='training', balance_classes=True):
-        PointCloudDataset.__init__(self, 'SemanticKitti')
+        PointCloudDataset.__init__(self, 'Rellis')
 
         ##########################
         # Parameters for the files
@@ -72,13 +72,16 @@ class SemanticKittiDataset(PointCloudDataset):
 
         # Get a list of sequences
         if self.set == 'training':
-            self.sequences = ['{:02d}'.format(i) for i in range(11) if i != 8]
+            # self.sequences = ['{:02d}'.format(i) for i in range(5) if i != 4]
+            self.sequences = ['{:02d}'.format(i) for i in [10, 12, 13, 14]]
         elif self.set == 'validation':
-            self.sequences = ['{:02d}'.format(i) for i in range(11) if i == 8]
+            # self.sequences = ['{:02d}'.format(i) for i in range(5) if i == 4]
+            self.sequences = ['{:02d}'.format(i) for i in [20, 21]]
         elif self.set == 'test':
-            self.sequences = ['{:02d}'.format(i) for i in range(11, 22)]
+            # self.sequences = ['{:02d}'.format(i) for i in range(5) if i == 3]
+            self.sequences = ['{:02d}'.format(i) for i in [30, 31, 32]]
         else:
-            raise ValueError('Unknown set for SemanticKitti data: ', self.set)
+            raise ValueError('Unknown set for Rellis data: ', self.set)
 
         # List all files in each sequence
         self.frames = []
@@ -93,7 +96,7 @@ class SemanticKittiDataset(PointCloudDataset):
 
         # Read labels
         if config.n_frames == 1:
-            config_file = join(self.path, 'semantic-kitti.yaml')
+            config_file = join(self.path, 'rellis.yaml')
         elif config.n_frames > 1:
             config_file = join(self.path, 'semantic-kitti-all.yaml')
         else:
@@ -722,10 +725,10 @@ class SemanticKittiDataset(PointCloudDataset):
 #       \********************************/
 
 
-class SemanticKittiSampler(Sampler):
-    """Sampler for SemanticKitti"""
+class RellisSampler(Sampler):
+    """Sampler for Rellis"""
 
-    def __init__(self, dataset: SemanticKittiDataset):
+    def __init__(self, dataset: RellisDataset):
         Sampler.__init__(self, dataset)
 
         # Dataset used by the sampler (no copy is made in memory)
@@ -1244,8 +1247,8 @@ class SemanticKittiSampler(Sampler):
         return
 
 
-class SemanticKittiCustomBatch:
-    """Custom batch definition with memory pinning for SemanticKitti"""
+class RellisCustomBatch:
+    """Custom batch definition with memory pinning for Rellis"""
 
     def __init__(self, input_list):
 
@@ -1385,8 +1388,8 @@ class SemanticKittiCustomBatch:
         return all_p_list
 
 
-def SemanticKittiCollate(batch_data):
-    return SemanticKittiCustomBatch(batch_data)
+def RellisCollate(batch_data):
+    return RellisCustomBatch(batch_data)
 
 
 # ----------------------------------------------------------------------------------------------------------------------
