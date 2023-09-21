@@ -72,11 +72,11 @@ class SemanticKittiDataset(PointCloudDataset):
 
         # Get a list of sequences
         if self.set == 'training':
-            self.sequences = ['{:02d}'.format(i) for i in range(11) if i != 8]
+            self.sequences = ['{:02d}'.format(i) for i in [10, 12, 13, 18, 19]]
         elif self.set == 'validation':
-            self.sequences = ['{:02d}'.format(i) for i in range(11) if i == 8]
+            self.sequences = ['{:02d}'.format(i) for i in [20, 25]]
         elif self.set == 'test':
-            self.sequences = ['{:02d}'.format(i) for i in range(11, 22)]
+            self.sequences = ['{:02d}'.format(i) for i in [30, 32, 35]]
         else:
             raise ValueError('Unknown set for SemanticKitti data: ', self.set)
 
