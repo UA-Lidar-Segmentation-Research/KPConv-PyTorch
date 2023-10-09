@@ -32,10 +32,11 @@ import torch
 from datasets.ModelNet40 import *
 from datasets.S3DIS import *
 from datasets.SemanticKitti import *
+from datasets.Rellis import *
 from torch.utils.data import DataLoader
 
 from utils.config import Config
-from utils.tester import ModelTester
+from utils.eval_tester import ModelTester
 from models.architectures import KPCNN, KPFCNN
 
 
@@ -95,13 +96,14 @@ if __name__ == '__main__':
     #       > 'last_XXX': Automatically retrieve the last trained model on dataset XXX
     #       > '(old_)results/Log_YYYY-MM-DD_HH-MM-SS': Directly provide the path of a trained model
 
-    chosen_log = 'results/Light_KPFCNN'
+    chosen_log = sys.argv[1]
+    # chosen_log = 'results/from_other/rl_log'
 
     # Choose the index of the checkpoint to load OR None if you want to load the current checkpoint
     chkp_idx = -1
 
     # Choose to test on validation or test split
-    on_val = True
+    on_val = False
 
     # Deal with 'last_XXXXXX' choices
     chosen_log = model_choice(chosen_log)
@@ -111,10 +113,10 @@ if __name__ == '__main__':
     ############################
 
     # Set which gpu is going to be used
-    GPU_ID = '0'
+    GPU_ID = '1'
 
     # Set GPU visible device
-    os.environ['CUDA_VISIBLE_DEVICES'] = GPU_ID
+    # os.environ['CUDA_VISIBLE_DEVICES'] = GPU_ID
 
     ###############
     # Previous chkp
@@ -145,8 +147,8 @@ if __name__ == '__main__':
     #config.augment_symmetries = False
     #config.batch_num = 3
     #config.in_radius = 4
-    config.validation_size = 200
-    config.input_threads = 10
+    config.validation_size = 300
+    config.input_threads = 12
 
     ##############
     # Prepare Data
@@ -161,6 +163,8 @@ if __name__ == '__main__':
     else:
         set = 'test'
 
+    print(f"Running on {set} set")
+
     # Initiate dataset
     if config.dataset == 'ModelNet40':
         test_dataset = ModelNet40Dataset(config, train=False)
@@ -174,6 +178,10 @@ if __name__ == '__main__':
         test_dataset = SemanticKittiDataset(config, set=set, balance_classes=False)
         test_sampler = SemanticKittiSampler(test_dataset)
         collate_fn = SemanticKittiCollate
+    elif config.dataset == 'Rellis':
+        test_dataset = RellisDataset(config, set=set, balance_classes=False)
+        test_sampler = RellisSampler(test_dataset)
+        collate_fn = RellisCollate
     else:
         raise ValueError('Unsupported dataset : ' + config.dataset)
 
@@ -213,6 +221,6 @@ if __name__ == '__main__':
     elif config.dataset_task == 'cloud_segmentation':
         tester.cloud_segmentation_test(net, test_loader, config)
     elif config.dataset_task == 'slam_segmentation':
-        tester.slam_segmentation_test(net, test_loader, config)
+        tester.slam_segmentation_test(net, test_loader, config, num_votes=0)
     else:
         raise ValueError('Unsupported dataset_task for testing: ' + config.dataset_task)

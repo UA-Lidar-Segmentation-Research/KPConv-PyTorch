@@ -220,11 +220,14 @@ def IoU_from_confusions(confusions):
     IoU = TP / (TP_plus_FP + TP_plus_FN - TP + 1e-6)
 
     # Compute mIoU with only the actual classes
-    mask = TP_plus_FN < 1e-3
+    # mask = TP_plus_FN < 1e-3
+    mask = np.zeros(TP_plus_FN.shape)
     counts = np.sum(1 - mask, axis=-1, keepdims=True)
     mIoU = np.sum(IoU, axis=-1, keepdims=True) / (counts + 1e-6)
 
+    # print(mIoU)
     # If class is absent, place mIoU in place of 0 IoU to get the actual mean later
     IoU += mask * mIoU
+    # print(IoU)
 
     return IoU
