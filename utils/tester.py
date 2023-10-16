@@ -717,9 +717,21 @@ class ModelTester:
                     val_preds = []
                     val_labels = []
                     t1 = time.time()
+                    sequences = ['30']# , '31', '32']
                     for i, seq_frames in enumerate(test_loader.dataset.frames):
                         val_preds += [np.hstack(all_f_preds[i])]
                         val_labels += [np.hstack(all_f_labels[i])]
+                        seq_name = sequences[i]
+                        print(f"about to start saving predictions for sequence {seq_name}")
+
+                        for j in range(len(seq_frames)):
+                            new_preds = map(all_f_preds[i][j])
+
+                            small_filename = '{:s}.label'.format(seq_frames[j])
+                            path = join("/model/KPConv-PyTorch/output/sequences", seq_name, "predictions", "labels",
+                                        small_filename)
+                            print(f"Saving file to {path}")
+                            new_preds.tofile(path)
                     val_preds = np.hstack(val_preds)
                     val_labels = np.hstack(val_labels)
                     t2 = time.time()

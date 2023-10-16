@@ -103,7 +103,7 @@ if __name__ == '__main__':
     chkp_idx = -1
 
     # Choose to test on validation or test split
-    on_val = False
+    on_val = True
 
     # Deal with 'last_XXXXXX' choices
     chosen_log = model_choice(chosen_log)
@@ -147,8 +147,8 @@ if __name__ == '__main__':
     #config.augment_symmetries = False
     #config.batch_num = 3
     #config.in_radius = 4
-    config.validation_size = 300
-    config.input_threads = 12
+    config.validation_size = 200
+    config.input_threads = 8
 
     ##############
     # Prepare Data
@@ -187,7 +187,7 @@ if __name__ == '__main__':
 
     # Data loader
     test_loader = DataLoader(test_dataset,
-                             batch_size=1,
+                             batch_size=4,
                              sampler=test_sampler,
                              collate_fn=collate_fn,
                              num_workers=config.input_threads,
@@ -221,6 +221,6 @@ if __name__ == '__main__':
     elif config.dataset_task == 'cloud_segmentation':
         tester.cloud_segmentation_test(net, test_loader, config)
     elif config.dataset_task == 'slam_segmentation':
-        tester.slam_segmentation_test(net, test_loader, config, num_votes=0)
+        tester.slam_segmentation_test(net, test_loader, config)
     else:
         raise ValueError('Unsupported dataset_task for testing: ' + config.dataset_task)

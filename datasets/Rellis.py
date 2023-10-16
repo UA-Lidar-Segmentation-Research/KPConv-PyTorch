@@ -14,8 +14,7 @@
 #
 #      Hugues THOMAS - 11/06/2018
 #
-
-
+import os.path
 # ----------------------------------------------------------------------------------------------------------------------
 #
 #           Imports and global variables
@@ -62,7 +61,10 @@ class RellisDataset(PointCloudDataset):
         ##########################
 
         # Dataset folder
-        self.path = '/dataset'
+        if os.path.exists('/dataset'):
+            self.path = '/dataset'
+        else:
+            self.path = '/media/mmcvicker/masonmcv_data/RELLIS/dataset'
 
         # Type of task conducted on this dataset
         self.dataset_task = 'slam_segmentation'
@@ -72,14 +74,11 @@ class RellisDataset(PointCloudDataset):
 
         # Get a list of sequences
         if self.set == 'training':
-            # self.sequences = ['{:02d}'.format(i) for i in range(5) if i != 4]
             self.sequences = ['{:02d}'.format(i) for i in [10, 12, 13, 14]]
         elif self.set == 'validation':
-            # self.sequences = ['{:02d}'.format(i) for i in range(5) if i == 4]
-            self.sequences = ['{:02d}'.format(i) for i in [20, 21]]
+            self.sequences = ['{:02d}'.format(i) for i in [30]]#, 31, 32]]
         elif self.set == 'test':
-            # self.sequences = ['{:02d}'.format(i) for i in range(5) if i == 3]
-            self.sequences = ['{:02d}'.format(i) for i in [30, 31, 32]]
+            self.sequences = ['{:02d}'.format(i) for i in [20, 21]]
         else:
             raise ValueError('Unknown set for Rellis data: ', self.set)
 
@@ -585,7 +584,7 @@ class RellisDataset(PointCloudDataset):
 
         if self.set in ['training', 'validation']:
 
-            class_frames_bool = np.zeros((0, self.num_classes), dtype=np.bool)
+            class_frames_bool = np.zeros((0, self.num_classes), dtype=bool)
             self.class_proportions = np.zeros((self.num_classes,), dtype=np.int32)
 
             for s_ind, (seq, seq_frames) in enumerate(zip(self.sequences, self.frames)):
@@ -607,7 +606,7 @@ class RellisDataset(PointCloudDataset):
                     print('Preparing seq {:s} class frames. (Long but one time only)'.format(seq))
 
                     # Class frames as a boolean mask
-                    seq_class_frames = np.zeros((len(seq_frames), self.num_classes), dtype=np.bool)
+                    seq_class_frames = np.zeros((len(seq_frames), self.num_classes), dtype=bool)
 
                     # Proportion of each class
                     seq_proportions = np.zeros((self.num_classes,), dtype=np.int32)
@@ -733,7 +732,7 @@ class RellisSampler(Sampler):
 
         # Dataset used by the sampler (no copy is made in memory)
         self.dataset = dataset
-
+        self.i = 0
         # Number of step per epoch
         if dataset.set == 'training':
             self.N = dataset.config.epoch_steps
