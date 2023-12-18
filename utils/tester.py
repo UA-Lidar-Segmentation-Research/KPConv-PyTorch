@@ -47,6 +47,32 @@ from sklearn.metrics import confusion_matrix
 #       \******************/
 #
 
+def map_to_orig(label, mapdict = None):
+    if mapdict is None:
+        mapdict = {0: 0, 1: 3, 2: 4, 3: 5, 4: 6, 5: 8, 6: 15, 7: 17, 8: 18, 9: 19, 10: 23, 11: 27, 12: 31, 13: 33, 14: 34}
+    # put label from original values to xentropy
+    # or vice-versa, depending on dictionary values
+    # make learning map a lookup table
+    maxkey = 0
+    for key, data in mapdict.items():
+        if isinstance(data, list):
+            nel = len(data)
+        else:
+            nel = 1
+        if key > maxkey:
+            maxkey = key
+    # +100 hack making lut bigger just in case there are unknown labels
+    if nel > 1:
+        lut = np.zeros((maxkey + 100, nel), dtype=np.int32)
+    else:
+        lut = np.zeros((maxkey + 100), dtype=np.int32)
+    for key, data in mapdict.items():
+        try:
+            lut[key] = data
+        except IndexError:
+            print("Wrong key ", key)
+    # do the mapping
+    return lut[label]
 
 class ModelTester:
 
@@ -692,12 +718,12 @@ class ModelTester:
             new_min = torch.min(test_loader.dataset.potentials)
             print('Test epoch {:d}, end. Min potential = {:.1f}'.format(test_epoch, new_min))
 
-            if last_min + 1 < new_min:
-
+            # if last_min + 1 < new_min:
+            if True:
                 # Update last_min
                 last_min += 1
 
-                if test_loader.dataset.set == 'validation' and last_min % 1 == 0:
+                if test_loader.dataset.set == 'validation':# and last_min % 1 == 0:
 
                     #####################################
                     # Results on the whole validation set
@@ -717,21 +743,26 @@ class ModelTester:
                     val_preds = []
                     val_labels = []
                     t1 = time.time()
-                    sequences = ['30']# , '31', '32']
+                    sequences = ['30', '31', '32']
                     for i, seq_frames in enumerate(test_loader.dataset.frames):
                         val_preds += [np.hstack(all_f_preds[i])]
                         val_labels += [np.hstack(all_f_labels[i])]
                         seq_name = sequences[i]
                         print(f"about to start saving predictions for sequence {seq_name}")
 
-                        for j in range(len(seq_frames)):
-                            new_preds = map(all_f_preds[i][j])
-
-                            small_filename = '{:s}.label'.format(seq_frames[j])
-                            path = join("/model/KPConv-PyTorch/output/sequences", seq_name, "predictions", "labels",
-                                        small_filename)
-                            print(f"Saving file to {path}")
-                            new_preds.tofile(path)
+                        # for j in range(len(seq_frames)):
+                        #     new_preds = map_to_orig(all_f_preds[i][j])
+                        #
+                        #     small_filename = '{:s}.label'.format(seq_frames[j])
+                        #     if last_min % 1 == 0:
+                        #         path = join("/model/KPConv-PyTorch/output2/sequences", seq_name, "predictions", "labels",
+                        #                 small_filename)
+                        #         # print(f"Saving2 file to {path}")
+                        #     else:
+                        #         path = join("/model/KPConv-PyTorch/output3/sequences", seq_name, "predictions", "labels",
+                        #                 small_filename)
+                        #         # print(f"Saving file to {path}")
+                        #     new_preds.tofile(path)
                     val_preds = np.hstack(val_preds)
                     val_labels = np.hstack(val_labels)
                     t2 = time.time()

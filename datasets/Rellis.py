@@ -76,7 +76,7 @@ class RellisDataset(PointCloudDataset):
         if self.set == 'training':
             self.sequences = ['{:02d}'.format(i) for i in [10, 12, 13, 14]]
         elif self.set == 'validation':
-            self.sequences = ['{:02d}'.format(i) for i in [30]]#, 31, 32]]
+            self.sequences = ['{:02d}'.format(i) for i in [30, 31, 32]]
         elif self.set == 'test':
             self.sequences = ['{:02d}'.format(i) for i in [20, 21]]
         else:

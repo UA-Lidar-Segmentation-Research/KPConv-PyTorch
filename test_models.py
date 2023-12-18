@@ -36,7 +36,7 @@ from datasets.Rellis import *
 from torch.utils.data import DataLoader
 
 from utils.config import Config
-from utils.eval_tester import ModelTester
+from utils.tester import ModelTester
 from models.architectures import KPCNN, KPFCNN
 
 
@@ -144,11 +144,13 @@ if __name__ == '__main__':
     # Change parameters for the test here. For example, you can stop augmenting the input data.
 
     #config.augment_noise = 0.0001
-    #config.augment_symmetries = False
+    # config.augment_symmetries = False
     #config.batch_num = 3
     #config.in_radius = 4
     config.validation_size = 200
-    config.input_threads = 8
+    config.input_threads = 24
+    config.val_radius = 50
+    config.max_val_points = 132000
 
     ##############
     # Prepare Data
@@ -187,7 +189,7 @@ if __name__ == '__main__':
 
     # Data loader
     test_loader = DataLoader(test_dataset,
-                             batch_size=4,
+                             batch_size=24,
                              sampler=test_sampler,
                              collate_fn=collate_fn,
                              num_workers=config.input_threads,
@@ -221,6 +223,6 @@ if __name__ == '__main__':
     elif config.dataset_task == 'cloud_segmentation':
         tester.cloud_segmentation_test(net, test_loader, config)
     elif config.dataset_task == 'slam_segmentation':
-        tester.slam_segmentation_test(net, test_loader, config)
+        tester.slam_segmentation_test(net, test_loader, config, num_votes=100)
     else:
         raise ValueError('Unsupported dataset_task for testing: ' + config.dataset_task)
